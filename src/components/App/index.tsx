@@ -14,6 +14,35 @@ const App: React.FC = () => {
   const [bombCounter, setBombCounter] = useState<number>(10);
   const [hasLost, setHasLost] = useState<boolean>(false);
   const [hasWon, setHasWon] = useState<boolean>(false);
+  const [statistics, setStatistics] = useState<number[]>([]);
+
+  useEffect(() => {
+    const parsedCells = localStorage.getItem("minesweeperCells") || "";
+    const parsedBombCounter = localStorage.getItem("minesweeperBombs") || "";
+    const parsedTime = localStorage.getItem("minesweeperTime") || "";
+    const parsedStatistics =
+      localStorage.getItem("minesweeperStatistics") || "";
+    setStatistics(JSON.parse(parsedStatistics));
+    if (!parsedCells || !parsedBombCounter || !parsedTime) return;
+    else {
+      setCells(JSON.parse(parsedCells));
+      setBombCounter(JSON.parse(parsedBombCounter));
+      setTime(JSON.parse(parsedTime));
+      setLive(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasWon || hasLost || !live) {
+      localStorage.clear();
+      localStorage.setItem("minesweeperStatistics", JSON.stringify(statistics));
+    } else {
+      localStorage.setItem("minesweeperCells", JSON.stringify(cells) || "");
+      localStorage.setItem("minesweeperBombs", bombCounter.toString() || "");
+      localStorage.setItem("minesweeperTime", time.toString() || "");
+      localStorage.setItem("minesweeperStatistics", JSON.stringify(statistics));
+    }
+  }, [cells, bombCounter, time, hasLost, hasWon, statistics, live]);
 
   useEffect(() => {
     const handleMouseDown = (): void => setFace(Face.Oh);
@@ -44,10 +73,12 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (hasWon) {
+      statistics.push(time);
+      setStatistics([...new Set(statistics)].sort()); // TODO: Fix!!! only unique elements
       setLive(false);
       setFace(Face.Won);
     }
-  }, [hasWon]);
+  }, [hasWon, statistics, time]);
 
   const handleCellClick = (rowParam: number, colParam: number) => (): void => {
     let newCells = cells.slice();
@@ -57,7 +88,6 @@ const App: React.FC = () => {
       let isABomb = newCells[rowParam][colParam].value === CellValue.Bomb;
       while (isABomb) {
         newCells = generateCells();
-        console.log("new current cell", newCells[rowParam][colParam]);
         if (newCells[rowParam][colParam].value !== CellValue.Bomb) {
           isABomb = false;
           break;
@@ -82,10 +112,8 @@ const App: React.FC = () => {
       return;
     } else if (currentCell.value === CellValue.None) {
       newCells = openMultipleCells(newCells, rowParam, colParam);
-      // setCells(newCells);
     } else {
       newCells[rowParam][colParam].state = CellState.Visible;
-      // setCells(newCells);
     }
 
     // check if you won
@@ -94,7 +122,6 @@ const App: React.FC = () => {
     for (let row = 0; row < MAX_ROWS; row++) {
       for (let col = 0; col < MAX_COLS; col++) {
         const currentCell = newCells[row][col];
-
         if (
           currentCell.value !== CellValue.Bomb &&
           currentCell.state === CellState.Open
