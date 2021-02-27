@@ -4,18 +4,22 @@ import "./Menu.scss";
 
 interface MenuProps {
   level: number;
-  volume: number;
+  soundVolume: number;
+  musicVolume: number;
   statistics: Statistics[];
   levelChange(): (...args: any[]) => void;
-  rangeChange(range?: number): (...args: any[]) => void;
+  soundRangeChange(range?: number, music?: boolean): (...args: any[]) => void;
+  musicRangeChange(range?: number, music?: boolean): (...args: any[]) => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
   level,
-  volume,
+  soundVolume,
+  musicVolume,
   statistics,
   levelChange,
-  rangeChange,
+  soundRangeChange,
+  musicRangeChange,
 }) => {
   const [statVisible, setStatVisible] = useState<boolean>(false);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
@@ -53,16 +57,38 @@ const Menu: React.FC<MenuProps> = ({
           <option value="1">Medium</option>
           <option value="2">Hard</option>
         </select>
-        <button onClick={volume === 0 ? rangeChange(100) : rangeChange(0)}>
-          Sound on/off
-        </button>
-        <input
-          min="0"
-          max="100"
-          value={volume}
-          type="range"
-          onChange={rangeChange()}
-        ></input>
+        <div className="sound">
+          <button
+            onClick={
+              soundVolume === 0 ? soundRangeChange(100) : soundRangeChange(0)
+            }
+          >
+            Sound on/off
+          </button>
+          <input
+            min="0"
+            max="100"
+            value={soundVolume}
+            type="range"
+            onChange={soundRangeChange()}
+          ></input>
+        </div>
+        <div className="music">
+          <button
+            onClick={
+              musicVolume === 0 ? musicRangeChange(100) : musicRangeChange(0)
+            }
+          >
+            Music on/off
+          </button>
+          <input
+            min="0"
+            max="100"
+            value={musicVolume}
+            type="range"
+            onChange={musicRangeChange()}
+          ></input>
+        </div>
         <button onClick={showStat()}>{statButton}</button>
         <div className={`Statistics ${statVisible ? "visible" : ""}`}>
           {statistics.map((item) => `${item.name} : ${item.time}\n`)}

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
+import useSound from "use-sound";
 import "./App.scss";
 import NumberDisplay from "../NumberDisplay";
 import { generateCells, openMultipleCells, audioPlay } from "../../utils";
@@ -9,6 +10,7 @@ import Menu from "../Menu";
 import WonForm from "../WonForm";
 
 const App: React.FC = () => {
+  const bgAudioURL = require(`../../assets/music.mp3`).default;
   const [cells, setCells] = useState(generateCells(0));
   const [face, setFace] = useState<Face>(Face.Smile);
   const [time, setTime] = useState<number>(0);
@@ -18,11 +20,30 @@ const App: React.FC = () => {
   const [hasWon, setHasWon] = useState<boolean>(false);
   const [statistics, setStatistics] = useState<Statistics[]>([]);
   const [level, setLevel] = useState<number>(0);
-  const [volume, setVolume] = useState<number>(100);
+  const [soundVolume, setSoundVolume] = useState<number>(100);
+  const [musicVolume, setMusicVolume] = useState<number>(0);
   const [formVisible, setFormVisible] = useState<boolean>(false);
   const [playerName, setPlayerName] = useState<string>("");
+  const [bgAudioPlaying, dispatch] = useReducer(reducer, false);
+  const [play] = useSound(bgAudioURL, { volume: musicVolume / 100 });
 
-  // audioPlay("music", volume);
+  function reducer(state: any, action: any) {
+    if (action.play) {
+      return !state;
+    } else {
+      return state;
+    }
+  }
+
+  useEffect(() => {
+    if (musicVolume > 0)
+      if (bgAudioPlaying) {
+        dispatch({ play: false });
+      } else {
+        play();
+        dispatch({ play: true });
+      }
+  }, [musicVolume, bgAudioPlaying]);
 
   useEffect(() => {
     const parsedCells = localStorage.getItem("minesweeperCells") || "";
@@ -140,7 +161,7 @@ const App: React.FC = () => {
       return;
 
     if (currentCell.value === CellValue.Bomb) {
-      audioPlay("bomb_click", volume);
+      audioPlay("bomb_click", soundVolume);
       setHasLost(true);
       newCells[rowParam][colParam].red = true;
       newCells = showAllBombs();
@@ -151,7 +172,7 @@ const App: React.FC = () => {
     } else {
       newCells[rowParam][colParam].state = CellState.Visible;
     }
-    audioPlay("click", volume);
+    audioPlay("click", soundVolume);
 
     // check if you won
 
@@ -232,11 +253,18 @@ const App: React.FC = () => {
     setBombCounter(levels[newLevel].NUM_OF_BOMBS);
   };
 
-  const handleVolumeChange = (range?: number) => (
+  const handleSoundVolumeChange = (range?: number) => (
     e: React.MouseEvent<HTMLInputElement, MouseEvent>
   ): void => {
-    if (range !== undefined) setVolume(range);
-    else setVolume(+e.currentTarget.value);
+    if (range !== undefined) setSoundVolume(range);
+    else setSoundVolume(+e.currentTarget.value);
+  };
+
+  const handleMusicVolumeChange = (range?: number) => (
+    e: React.MouseEvent<HTMLInputElement, MouseEvent>
+  ): void => {
+    if (range !== undefined) setMusicVolume(range);
+    else setMusicVolume(+e.currentTarget.value);
   };
 
   const handleWonFormSubmit = (name: string) => (
@@ -288,10 +316,12 @@ const App: React.FC = () => {
       <WonForm onClick={handleWonFormSubmit} visible={formVisible} />
       <Menu
         level={level}
-        volume={volume}
+        soundVolume={soundVolume}
+        musicVolume={musicVolume}
         statistics={statistics}
         levelChange={handleLevelChange}
-        rangeChange={handleVolumeChange}
+        soundRangeChange={handleSoundVolumeChange}
+        musicRangeChange={handleMusicVolumeChange}
       />
       <div className="Header">
         <NumberDisplay value={bombCounter} />
