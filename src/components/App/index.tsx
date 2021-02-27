@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./App.scss";
 import NumberDisplay from "../NumberDisplay";
-import { generateCells, openMultipleCells } from "../../utils";
+import { generateCells, openMultipleCells, audioPlay } from "../../utils";
 import Button from "../Button";
 import { CellState, CellValue, Face, Cell } from "../../types";
-import { MAX_ROWS, MAX_COLS } from "../../constants";
+import { levels } from "../../constants";
+import Menu from "../Menu";
 
 const App: React.FC = () => {
-  const [cells, setCells] = useState(generateCells());
+  const [cells, setCells] = useState(generateCells(0));
   const [face, setFace] = useState<Face>(Face.Smile);
   const [time, setTime] = useState<number>(0);
   const [live, setLive] = useState<boolean>(false);
@@ -15,6 +16,7 @@ const App: React.FC = () => {
   const [hasLost, setHasLost] = useState<boolean>(false);
   const [hasWon, setHasWon] = useState<boolean>(false);
   const [statistics, setStatistics] = useState<number[]>([]);
+  const [level, setLevel] = useState<number>(0);
 
   useEffect(() => {
     const parsedCells = localStorage.getItem("minesweeperCells") || "";
@@ -22,27 +24,30 @@ const App: React.FC = () => {
     const parsedTime = localStorage.getItem("minesweeperTime") || "";
     const parsedStatistics =
       localStorage.getItem("minesweeperStatistics") || "";
+    const parsedLevel = localStorage.getItem("minesweeperLevel") || 0;
     setStatistics(JSON.parse(parsedStatistics));
-    if (!parsedCells || !parsedBombCounter || !parsedTime) return;
-    else {
-      setCells(JSON.parse(parsedCells));
+    setLevel(+parsedLevel);
+    if (parsedCells || parsedBombCounter || parsedTime) {
       setBombCounter(JSON.parse(parsedBombCounter));
       setTime(JSON.parse(parsedTime));
       setLive(true);
+      setCells(JSON.parse(parsedCells));
+      return;
     }
+    setBombCounter(levels[+parsedLevel].NUM_OF_BOMBS);
+    setCells(generateCells(+parsedLevel));
   }, []);
 
   useEffect(() => {
-    if (hasWon || hasLost || !live) {
-      localStorage.clear();
-      localStorage.setItem("minesweeperStatistics", JSON.stringify(statistics));
-    } else {
+    if (hasWon || hasLost || !live) localStorage.clear();
+    else {
       localStorage.setItem("minesweeperCells", JSON.stringify(cells) || "");
       localStorage.setItem("minesweeperBombs", bombCounter.toString() || "");
       localStorage.setItem("minesweeperTime", time.toString() || "");
-      localStorage.setItem("minesweeperStatistics", JSON.stringify(statistics));
     }
-  }, [cells, bombCounter, time, hasLost, hasWon, statistics, live]);
+    localStorage.setItem("minesweeperLevel", level.toString());
+    localStorage.setItem("minesweeperStatistics", JSON.stringify(statistics));
+  }, [cells, bombCounter, time, hasLost, hasWon, statistics, live, level]);
 
   useEffect(() => {
     const handleMouseDown = (): void => setFace(Face.Oh);
@@ -72,9 +77,13 @@ const App: React.FC = () => {
   }, [hasLost]);
 
   useEffect(() => {
+    // if (!live) setCells(generateCells(level));
+  }, [level, live]);
+
+  useEffect(() => {
     if (hasWon) {
       statistics.push(time);
-      setStatistics([...new Set(statistics)].sort()); // TODO: Fix!!! only unique elements
+      setStatistics(statistics.sort((a, b) => a - b)); // TODO: Fix!!! only unique elements
       setLive(false);
       setFace(Face.Won);
     }
@@ -87,7 +96,7 @@ const App: React.FC = () => {
     if (!live) {
       let isABomb = newCells[rowParam][colParam].value === CellValue.Bomb;
       while (isABomb) {
-        newCells = generateCells();
+        newCells = generateCells(level);
         if (newCells[rowParam][colParam].value !== CellValue.Bomb) {
           isABomb = false;
           break;
@@ -105,20 +114,24 @@ const App: React.FC = () => {
       return;
 
     if (currentCell.value === CellValue.Bomb) {
+      audioPlay("bomb_click");
       setHasLost(true);
       newCells[rowParam][colParam].red = true;
       newCells = showAllBombs();
       setCells(newCells);
       return;
     } else if (currentCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam, colParam);
+      newCells = openMultipleCells(newCells, rowParam, colParam, level);
     } else {
       newCells[rowParam][colParam].state = CellState.Visible;
     }
+    audioPlay("click");
 
     // check if you won
 
     let safeOpenCellsExists = false;
+    const MAX_ROWS = levels[level].MAX_ROWS;
+    const MAX_COLS = levels[level].MAX_COLS;
     for (let row = 0; row < MAX_ROWS; row++) {
       for (let col = 0; col < MAX_COLS; col++) {
         const currentCell = newCells[row][col];
@@ -174,10 +187,22 @@ const App: React.FC = () => {
   const handleFaceClick = (): void => {
     setLive(false);
     setTime(0);
-    setCells(generateCells());
-    setBombCounter(10);
+    setCells(generateCells(level));
+    setBombCounter(levels[level].NUM_OF_BOMBS);
     setHasLost(false);
     setHasWon(false);
+  };
+
+  const handleLevelChange = () => (
+    e: React.MouseEvent<HTMLSelectElement, MouseEvent>
+  ): void => {
+    setLevel(+e.currentTarget.value);
+    setLive(false);
+    setHasLost(false);
+    setHasWon(false);
+    setTime(0);
+    setCells(generateCells(level));
+    setBombCounter(levels[+e.currentTarget.value].NUM_OF_BOMBS);
   };
 
   const renderCells = (): React.ReactNode => {
@@ -214,6 +239,7 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
+      <Menu value={level} onChange={handleLevelChange} />
       <div className="Header">
         <NumberDisplay value={bombCounter} />
         <div className="Face" onClick={handleFaceClick}>
@@ -223,7 +249,7 @@ const App: React.FC = () => {
         </div>
         <NumberDisplay value={time} />
       </div>
-      <div className="Body">{renderCells()}</div>
+      <div className={`Body level-${level}`}>{renderCells()}</div>
     </div>
   );
 };

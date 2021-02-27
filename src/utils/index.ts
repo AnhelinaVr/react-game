@@ -1,11 +1,13 @@
 import React from "react";
-import { MAX_COLS, MAX_ROWS, NUM_OF_BOMBS } from "../constants";
+import { levels } from "../constants";
 import { Cell, CellValue, CellState } from "../types";
+// import audioURL from "../assets/click.mp3";
 
 const grabAllAdjacentCells = (
   cells: Cell[][],
   rowParam: number,
-  colParam: number
+  colParam: number,
+  lvlNum: number
 ): {
   topLeftCell: Cell | null;
   topCell: Cell | null;
@@ -16,6 +18,8 @@ const grabAllAdjacentCells = (
   bottomCell: Cell | null;
   bottomRightCell: Cell | null;
 } => {
+  const MAX_ROWS = levels[lvlNum].MAX_ROWS;
+  const MAX_COLS = levels[lvlNum].MAX_COLS;
   const topLeftCell =
     rowParam > 0 && colParam > 0 ? cells[rowParam - 1][colParam - 1] : null;
   const topCell = rowParam > 0 ? cells[rowParam - 1][colParam] : null;
@@ -49,7 +53,10 @@ const grabAllAdjacentCells = (
   };
 };
 
-export const generateCells = (): Cell[][] => {
+export const generateCells = (lvlNum: number): Cell[][] => {
+  const MAX_ROWS = levels[lvlNum].MAX_ROWS;
+  const MAX_COLS = levels[lvlNum].MAX_COLS;
+  const NUM_OF_BOMBS = levels[lvlNum].NUM_OF_BOMBS;
   let cells: Cell[][] = [];
 
   // generating all cells
@@ -105,7 +112,7 @@ export const generateCells = (): Cell[][] => {
         bottomLeftCell,
         bottomCell,
         bottomRightCell,
-      } = grabAllAdjacentCells(cells, rowIndex, colIndex);
+      } = grabAllAdjacentCells(cells, rowIndex, colIndex, lvlNum);
 
       if (topLeftCell?.value === CellValue.Bomb) {
         numberOfBombs++;
@@ -147,7 +154,8 @@ export const generateCells = (): Cell[][] => {
 export const openMultipleCells = (
   cells: Cell[][],
   rowParam: number,
-  colParam: number
+  colParam: number,
+  lvlNum: number
 ): Cell[][] => {
   const currentCell = cells[rowParam][colParam];
 
@@ -170,14 +178,19 @@ export const openMultipleCells = (
     bottomLeftCell,
     bottomCell,
     bottomRightCell,
-  } = grabAllAdjacentCells(cells, rowParam, colParam);
+  } = grabAllAdjacentCells(cells, rowParam, colParam, lvlNum);
 
   if (
     topLeftCell?.state === CellState.Open &&
     topLeftCell.value !== CellValue.Bomb
   ) {
     if (topLeftCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam - 1, colParam - 1);
+      newCells = openMultipleCells(
+        newCells,
+        rowParam - 1,
+        colParam - 1,
+        lvlNum
+      );
     } else {
       newCells[rowParam - 1][colParam - 1].state = CellState.Visible;
     }
@@ -185,7 +198,7 @@ export const openMultipleCells = (
 
   if (topCell?.state === CellState.Open && topCell.value !== CellValue.Bomb) {
     if (topCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam - 1, colParam);
+      newCells = openMultipleCells(newCells, rowParam - 1, colParam, lvlNum);
     } else {
       newCells[rowParam - 1][colParam].state = CellState.Visible;
     }
@@ -196,7 +209,12 @@ export const openMultipleCells = (
     topRightCell.value !== CellValue.Bomb
   ) {
     if (topRightCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam - 1, colParam + 1);
+      newCells = openMultipleCells(
+        newCells,
+        rowParam - 1,
+        colParam + 1,
+        lvlNum
+      );
     } else {
       newCells[rowParam - 1][colParam + 1].state = CellState.Visible;
     }
@@ -204,7 +222,7 @@ export const openMultipleCells = (
 
   if (leftCell?.state === CellState.Open && leftCell.value !== CellValue.Bomb) {
     if (leftCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam, colParam - 1);
+      newCells = openMultipleCells(newCells, rowParam, colParam - 1, lvlNum);
     } else {
       newCells[rowParam][colParam - 1].state = CellState.Visible;
     }
@@ -215,7 +233,7 @@ export const openMultipleCells = (
     rightCell.value !== CellValue.Bomb
   ) {
     if (rightCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam, colParam + 1);
+      newCells = openMultipleCells(newCells, rowParam, colParam + 1, lvlNum);
     } else {
       newCells[rowParam][colParam + 1].state = CellState.Visible;
     }
@@ -226,7 +244,12 @@ export const openMultipleCells = (
     bottomLeftCell.value !== CellValue.Bomb
   ) {
     if (bottomLeftCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam + 1, colParam - 1);
+      newCells = openMultipleCells(
+        newCells,
+        rowParam + 1,
+        colParam - 1,
+        lvlNum
+      );
     } else {
       newCells[rowParam + 1][colParam - 1].state = CellState.Visible;
     }
@@ -237,7 +260,7 @@ export const openMultipleCells = (
     bottomCell.value !== CellValue.Bomb
   ) {
     if (bottomCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam + 1, colParam);
+      newCells = openMultipleCells(newCells, rowParam + 1, colParam, lvlNum);
     } else {
       newCells[rowParam + 1][colParam].state = CellState.Visible;
     }
@@ -248,11 +271,22 @@ export const openMultipleCells = (
     bottomRightCell.value !== CellValue.Bomb
   ) {
     if (bottomRightCell.value === CellValue.None) {
-      newCells = openMultipleCells(newCells, rowParam + 1, colParam + 1);
+      newCells = openMultipleCells(
+        newCells,
+        rowParam + 1,
+        colParam + 1,
+        lvlNum
+      );
     } else {
       newCells[rowParam + 1][colParam + 1].state = CellState.Visible;
     }
   }
 
   return newCells;
+};
+
+export const audioPlay = (path: string): void => {
+  const audioURL = require(`../assets/${path}.mp3`);
+  let audio = new Audio(audioURL.default);
+  audio.play();
 };

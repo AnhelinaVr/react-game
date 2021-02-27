@@ -29,6 +29,16 @@
     @include borders(#7b7b7b, #fff);
     margin-top: 16px;
     display: grid;
-    grid-template-rows: repeat(9, 1fr);
-    grid-template-columns: repeat(9, 1fr);
+    &.level-0 {
+        grid-template-rows: repeat(9, 1fr);
+        grid-template-columns: repeat(9, 1fr);
+    }
+    &.level-1 {
+        grid-template-rows: repeat(16, 1fr);
+        grid-template-columns: repeat(16, 1fr);
+    }
+    &.level-2 {
+        grid-template-rows: repeat(16, 1fr);
+        grid-template-columns: repeat(30, 1fr);
+    }
 }
