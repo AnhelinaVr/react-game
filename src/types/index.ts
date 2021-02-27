@@ -19,6 +19,8 @@ export enum CellState {
 
 export type Cell = { value: CellValue; state: CellState; red?: boolean };
 
+export type Statistics = { time: number; name: string };
+
 export enum Face {
   Smile = "😊",
   Oh = "😯",

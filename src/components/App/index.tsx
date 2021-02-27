@@ -3,9 +3,10 @@ import "./App.scss";
 import NumberDisplay from "../NumberDisplay";
 import { generateCells, openMultipleCells, audioPlay } from "../../utils";
 import Button from "../Button";
-import { CellState, CellValue, Face, Cell } from "../../types";
+import { CellState, CellValue, Face, Cell, Statistics } from "../../types";
 import { levels } from "../../constants";
 import Menu from "../Menu";
+import WonForm from "../WonForm";
 
 const App: React.FC = () => {
   const [cells, setCells] = useState(generateCells(0));
@@ -15,16 +16,22 @@ const App: React.FC = () => {
   const [bombCounter, setBombCounter] = useState<number>(10);
   const [hasLost, setHasLost] = useState<boolean>(false);
   const [hasWon, setHasWon] = useState<boolean>(false);
-  const [statistics, setStatistics] = useState<number[]>([]);
+  const [statistics, setStatistics] = useState<Statistics[]>([]);
   const [level, setLevel] = useState<number>(0);
+  const [volume, setVolume] = useState<number>(100);
+  const [formVisible, setFormVisible] = useState<boolean>(false);
+  const [playerName, setPlayerName] = useState<string>("");
+
+  // audioPlay("music", volume);
 
   useEffect(() => {
     const parsedCells = localStorage.getItem("minesweeperCells") || "";
     const parsedBombCounter = localStorage.getItem("minesweeperBombs") || "";
     const parsedTime = localStorage.getItem("minesweeperTime") || "";
     const parsedStatistics =
-      localStorage.getItem("minesweeperStatistics") || "";
+      localStorage.getItem("minesweeperStatistics") || "[]";
     const parsedLevel = localStorage.getItem("minesweeperLevel") || 0;
+    const parsedName = localStorage.getItem("minesweeperName") || "";
     setStatistics(JSON.parse(parsedStatistics));
     setLevel(+parsedLevel);
     if (parsedCells || parsedBombCounter || parsedTime) {
@@ -36,6 +43,7 @@ const App: React.FC = () => {
     }
     setBombCounter(levels[+parsedLevel].NUM_OF_BOMBS);
     setCells(generateCells(+parsedLevel));
+    setPlayerName(parsedName);
   }, []);
 
   useEffect(() => {
@@ -45,9 +53,20 @@ const App: React.FC = () => {
       localStorage.setItem("minesweeperBombs", bombCounter.toString() || "");
       localStorage.setItem("minesweeperTime", time.toString() || "");
     }
-    localStorage.setItem("minesweeperLevel", level.toString());
     localStorage.setItem("minesweeperStatistics", JSON.stringify(statistics));
-  }, [cells, bombCounter, time, hasLost, hasWon, statistics, live, level]);
+    localStorage.setItem("minesweeperName", playerName);
+    localStorage.setItem("minesweeperLevel", level.toString());
+  }, [
+    cells,
+    bombCounter,
+    time,
+    hasLost,
+    hasWon,
+    statistics,
+    live,
+    level,
+    playerName,
+  ]);
 
   useEffect(() => {
     const handleMouseDown = (): void => setFace(Face.Oh);
@@ -77,17 +96,24 @@ const App: React.FC = () => {
   }, [hasLost]);
 
   useEffect(() => {
-    // if (!live) setCells(generateCells(level));
-  }, [level, live]);
-
-  useEffect(() => {
     if (hasWon) {
-      statistics.push(time);
-      setStatistics(statistics.sort((a, b) => a - b)); // TODO: Fix!!! only unique elements
+      if (!playerName) renderWonForm();
+      else {
+        statistics.push({
+          name: playerName,
+          time: time,
+        });
+        setStatistics(statistics); // TODO: Fix!!! only unique elements
+        localStorage.setItem(
+          "minesweeperStatistics",
+          JSON.stringify(statistics)
+        );
+      }
+
       setLive(false);
       setFace(Face.Won);
     }
-  }, [hasWon, statistics, time]);
+  }, [hasWon, statistics, time, playerName]);
 
   const handleCellClick = (rowParam: number, colParam: number) => (): void => {
     let newCells = cells.slice();
@@ -114,7 +140,7 @@ const App: React.FC = () => {
       return;
 
     if (currentCell.value === CellValue.Bomb) {
-      audioPlay("bomb_click");
+      audioPlay("bomb_click", volume);
       setHasLost(true);
       newCells[rowParam][colParam].red = true;
       newCells = showAllBombs();
@@ -125,7 +151,7 @@ const App: React.FC = () => {
     } else {
       newCells[rowParam][colParam].state = CellState.Visible;
     }
-    audioPlay("click");
+    audioPlay("click", volume);
 
     // check if you won
 
@@ -196,13 +222,29 @@ const App: React.FC = () => {
   const handleLevelChange = () => (
     e: React.MouseEvent<HTMLSelectElement, MouseEvent>
   ): void => {
-    setLevel(+e.currentTarget.value);
+    const newLevel = +e.currentTarget.value;
+    setLevel(newLevel);
     setLive(false);
     setHasLost(false);
     setHasWon(false);
     setTime(0);
-    setCells(generateCells(level));
-    setBombCounter(levels[+e.currentTarget.value].NUM_OF_BOMBS);
+    setCells(generateCells(newLevel));
+    setBombCounter(levels[newLevel].NUM_OF_BOMBS);
+  };
+
+  const handleVolumeChange = (range?: number) => (
+    e: React.MouseEvent<HTMLInputElement, MouseEvent>
+  ): void => {
+    if (range !== undefined) setVolume(range);
+    else setVolume(+e.currentTarget.value);
+  };
+
+  const handleWonFormSubmit = (name: string) => (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void => {
+    e.preventDefault();
+    setPlayerName(name);
+    setFormVisible(false);
   };
 
   const renderCells = (): React.ReactNode => {
@@ -222,6 +264,10 @@ const App: React.FC = () => {
     );
   };
 
+  const renderWonForm = (): void => {
+    setFormVisible(true);
+  };
+
   const showAllBombs = (): Cell[][] => {
     const currentCells = cells.slice();
 
@@ -239,7 +285,14 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <Menu value={level} onChange={handleLevelChange} />
+      <WonForm onClick={handleWonFormSubmit} visible={formVisible} />
+      <Menu
+        level={level}
+        volume={volume}
+        statistics={statistics}
+        levelChange={handleLevelChange}
+        rangeChange={handleVolumeChange}
+      />
       <div className="Header">
         <NumberDisplay value={bombCounter} />
         <div className="Face" onClick={handleFaceClick}>
