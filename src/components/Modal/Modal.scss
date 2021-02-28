@@ -1,0 +1,22 @@
+.Modal {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    background-color: rgba($color: #000000, $alpha: 0.2);
+    &.open {
+        height: 100%;
+        display: block;
+    }
+    &.close {
+        height: 0;
+        display: none;
+    }
+    &__body {
+        max-width: 500px;
+        margin: auto;
+        margin-top: 5%;
+        padding: 20px;
+        background-color: #fff;
+    }
+}

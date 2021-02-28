@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Statistics } from "../../types";
 import "./Menu.scss";
+import Modal from "../Modal";
 
 interface MenuProps {
   level: number;
@@ -90,9 +91,16 @@ const Menu: React.FC<MenuProps> = ({
           ></input>
         </div>
         <button onClick={showStat()}>{statButton}</button>
-        <div className={`Statistics ${statVisible ? "visible" : ""}`}>
+        <Modal
+          title={"Statistics"}
+          text={statistics
+            .map((item) => `${item.name} : ${item.time}\n`)
+            .join("\n")}
+          isOpened={statVisible}
+        />
+        {/* <div className={`Statistics ${statVisible ? "visible" : ""}`}>
           {statistics.map((item) => `${item.name} : ${item.time}\n`)}
-        </div>
+        </div> */}
       </div>
     </div>
   );

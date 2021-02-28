@@ -288,7 +288,6 @@ export const openMultipleCells = (
 export const audioPlay = (path: string, volume: number): void => {
   const audioURL = require(`../assets/${path}.mp3`);
   let audio = new Audio(audioURL.default);
-  console.log(volume);
   audio.volume = volume / 100; // range [0...1] instead of input range [0...100]
   audio.play();
 };
