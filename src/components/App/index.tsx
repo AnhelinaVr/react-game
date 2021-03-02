@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { KeyboardEvent, useEffect, useReducer, useState } from "react";
 import useSound from "use-sound";
 import "./App.scss";
 import NumberDisplay from "../NumberDisplay";
@@ -92,15 +92,30 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleMouseDown = (): void => setFace(Face.Oh);
     const handleMouseUp = (): void => setFace(Face.Smile);
+    const handleKeyDown = (e: any): void => {
+      if (e.shiftKey) {
+        // console.log(e.ctrlKey);
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (level < 2) handleLevelChange(level + 1)();
+        }
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (level > 0) handleLevelChange(level - 1)();
+        }
+      }
+    };
 
     window.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [level]);
 
   useEffect(() => {
     if (live && time < 999) {
@@ -240,10 +255,12 @@ const App: React.FC = () => {
     setHasWon(false);
   };
 
-  const handleLevelChange = () => (
-    e: React.MouseEvent<HTMLSelectElement, MouseEvent>
-  ): void => {
-    const newLevel = +e.currentTarget.value;
+  const handleLevelChange = (level?: number) => (e?: any): void => {
+    let newLevel;
+
+    if (level !== undefined) newLevel = level;
+    else newLevel = +e.currentTarget.value;
+
     setLevel(newLevel);
     setLive(false);
     setHasLost(false);
@@ -260,9 +277,7 @@ const App: React.FC = () => {
     else setSoundVolume(+e.currentTarget.value);
   };
 
-  const handleMusicVolumeChange = (range?: number) => (
-    e: React.MouseEvent<HTMLInputElement, MouseEvent>
-  ): void => {
+  const handleMusicVolumeChange = (range?: number) => (e: any): void => {
     if (range !== undefined) setMusicVolume(range);
     else setMusicVolume(+e.currentTarget.value);
   };

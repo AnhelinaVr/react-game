@@ -1,6 +1,6 @@
 import React from "react";
 import { levels } from "../constants";
-import { Cell, CellValue, CellState } from "../types";
+import { Cell, CellValue, CellState, Statistics } from "../types";
 // import audioURL from "../assets/click.mp3";
 
 const grabAllAdjacentCells = (
@@ -290,4 +290,15 @@ export const audioPlay = (path: string, volume: number): void => {
   let audio = new Audio(audioURL.default);
   audio.volume = volume / 100; // range [0...1] instead of input range [0...100]
   audio.play();
+};
+
+export const sortStat = (statistics: Statistics[]) => {
+  statistics.sort((a, b) => a.time - b.time);
+  const sortedStat = [statistics[0]];
+  for (let i = 1; i < statistics.length; i++) {
+    if (statistics[i - 1].time !== statistics[i].time) {
+      sortedStat.push(statistics[i]);
+    }
+  }
+  return sortedStat;
 };

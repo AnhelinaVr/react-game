@@ -50,6 +50,7 @@ const Button: React.FC<ButtonProps> = ({
       ${red ? "red" : ""}`}
       onClick={onClick(row, col)}
       onContextMenu={onContext(row, col)}
+      tabIndex={col + 1}
     >
       {renderContent()}
     </div>

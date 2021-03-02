@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Statistics } from "../../types";
+import { sortStat } from "../../utils";
 import "./Menu.scss";
 import Modal from "../Modal";
 
@@ -8,7 +9,7 @@ interface MenuProps {
   soundVolume: number;
   musicVolume: number;
   statistics: Statistics[];
-  levelChange(): (...args: any[]) => void;
+  levelChange(level?: number): (...args: any[]) => void;
   soundRangeChange(range?: number, music?: boolean): (...args: any[]) => void;
   musicRangeChange(range?: number, music?: boolean): (...args: any[]) => void;
 }
@@ -24,32 +25,67 @@ const Menu: React.FC<MenuProps> = ({
 }) => {
   const [statVisible, setStatVisible] = useState<boolean>(false);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
-  const [statButton, setStatButton] = useState<string>("Show statistics");
+  const [musicVol, setMusicVol] = useState<number>(musicVolume);
+  const [soundVol, setSoundVol] = useState<number>(soundVolume);
 
-  const showStat = () => (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    if (statVisible) {
-      setStatButton("Show statistics");
-      setStatVisible(false);
-    } else {
-      setStatButton("Hide statistics");
-      setStatVisible(true);
+  useEffect(() => {
+    musicRangeChange(musicVol)();
+  }, [musicVol]);
+
+  useEffect(() => {
+    soundRangeChange(soundVol)();
+  }, [soundVol]);
+
+  const handleKeyDown = (e: any): void => {
+    if (e.ctrlKey) {
+      if (e.key === "s") {
+        e.preventDefault();
+        statVisible ? setStatVisible(false) : setStatVisible(true);
+      }
+      if (e.key === "m") {
+        e.preventDefault();
+        musicVol === 0 ? setMusicVol(100) : setMusicVol(0);
+      }
+      if (e.key === "b") {
+        e.preventDefault();
+        soundVol === 0 ? setSoundVol(100) : setSoundVol(0);
+      }
     }
   };
-  const showMenu = () => (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    if (menuVisible) {
-      setMenuVisible(false);
-    } else {
-      setMenuVisible(true);
-    }
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [musicVol, soundVol, statVisible]);
+
+  const getStat = (): React.ReactNode => {
+    let sortedStat: Statistics[] = [];
+    if (statistics.length !== 0)
+      sortedStat = sortStat(statistics).splice(0, 10);
+    return (
+      <ul>
+        {sortedStat.map((item, index) => (
+          <li key={index}>
+            {item.name} : {item.time}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const showMenu = () => {
+    menuVisible ? setMenuVisible(false) : setMenuVisible(true);
+  };
+
+  const handleModalClose = (): void => {
+    setStatVisible(false);
   };
 
   return (
     <div className="Menu">
-      <button className="hideMenu" onClick={showMenu()}>
+      <button className="hideMenu" onClick={showMenu}>
         Menu
       </button>
       <div className={`wrapper ${menuVisible ? "" : "hidden"}`}>
@@ -60,9 +96,7 @@ const Menu: React.FC<MenuProps> = ({
         </select>
         <div className="sound">
           <button
-            onClick={
-              soundVolume === 0 ? soundRangeChange(100) : soundRangeChange(0)
-            }
+            onClick={() => (soundVol === 0 ? setSoundVol(100) : setSoundVol(0))}
           >
             Sound on/off
           </button>
@@ -76,9 +110,7 @@ const Menu: React.FC<MenuProps> = ({
         </div>
         <div className="music">
           <button
-            onClick={
-              musicVolume === 0 ? musicRangeChange(100) : musicRangeChange(0)
-            }
+            onClick={() => (musicVol === 0 ? setMusicVol(100) : setMusicVol(0))}
           >
             Music on/off
           </button>
@@ -90,18 +122,14 @@ const Menu: React.FC<MenuProps> = ({
             onChange={musicRangeChange()}
           ></input>
         </div>
-        <button onClick={showStat()}>{statButton}</button>
-        <Modal
-          title={"Statistics"}
-          text={statistics
-            .map((item) => `${item.name} : ${item.time}\n`)
-            .join("\n")}
-          isOpened={statVisible}
-        />
-        {/* <div className={`Statistics ${statVisible ? "visible" : ""}`}>
-          {statistics.map((item) => `${item.name} : ${item.time}\n`)}
-        </div> */}
+        <button onClick={() => setStatVisible(true)}>Show statistics</button>
       </div>
+      <Modal
+        title={"Statistics"}
+        text={getStat()}
+        isOpened={statVisible}
+        onModalClose={handleModalClose}
+      />
     </div>
   );
 };
