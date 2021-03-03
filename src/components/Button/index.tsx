@@ -7,6 +7,7 @@ interface ButtonProps {
   col: number;
   state: CellState;
   value: CellValue;
+  mode: number;
   red?: boolean;
   onClick(rowParam: number, colParam: number): (...args: any[]) => void;
   onContext(rowParam: number, colParam: number): (...args: any[]) => void;
@@ -20,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   state,
   value,
   red,
+  mode,
 }) => {
   const renderContent = (): React.ReactNode => {
     if (state === CellState.Visible) {
@@ -47,7 +49,8 @@ const Button: React.FC<ButtonProps> = ({
     <div
       className={`Button ${state === CellState.Visible ? "visible" : ""} 
       value-${value} 
-      ${red ? "red" : ""}`}
+      ${red ? "red" : ""}
+      ${mode === 0 ? "" : "challenge"}`}
       onClick={onClick(row, col)}
       onContextMenu={onContext(row, col)}
       tabIndex={col + 1}

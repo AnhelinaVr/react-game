@@ -16,7 +16,6 @@ const WonForm: React.FC<WonFormProps> = ({ visible, onClick }) => {
     return (
       <div className="WonForm">
         <form action="" className="Form">
-          <h2>Enter your name: </h2>
           <input type="text" required onChange={handleNameChange} />
           <button type="submit" onClick={onClick(name)}>
             Submit

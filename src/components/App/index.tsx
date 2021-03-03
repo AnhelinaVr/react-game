@@ -7,7 +7,6 @@ import Button from "../Button";
 import { CellState, CellValue, Face, Cell, Statistics } from "../../types";
 import { levels } from "../../constants";
 import Menu from "../Menu";
-import WonForm from "../WonForm";
 
 const App: React.FC = () => {
   const bgAudioURL = require(`../../assets/music.mp3`).default;
@@ -20,6 +19,7 @@ const App: React.FC = () => {
   const [hasWon, setHasWon] = useState<boolean>(false);
   const [statistics, setStatistics] = useState<Statistics[]>([]);
   const [level, setLevel] = useState<number>(0);
+  const [mode, setMode] = useState<number>(0);
   const [soundVolume, setSoundVolume] = useState<number>(100);
   const [musicVolume, setMusicVolume] = useState<number>(0);
   const [formVisible, setFormVisible] = useState<boolean>(false);
@@ -53,8 +53,10 @@ const App: React.FC = () => {
       localStorage.getItem("minesweeperStatistics") || "[]";
     const parsedLevel = localStorage.getItem("minesweeperLevel") || 0;
     const parsedName = localStorage.getItem("minesweeperName") || "";
+    const parsedMode = localStorage.getItem("minesweeperMode") || "";
     setStatistics(JSON.parse(parsedStatistics));
     setLevel(+parsedLevel);
+    setMode(+parsedMode);
     if (parsedCells || parsedBombCounter || parsedTime) {
       setBombCounter(JSON.parse(parsedBombCounter));
       setTime(JSON.parse(parsedTime));
@@ -77,6 +79,7 @@ const App: React.FC = () => {
     localStorage.setItem("minesweeperStatistics", JSON.stringify(statistics));
     localStorage.setItem("minesweeperName", playerName);
     localStorage.setItem("minesweeperLevel", level.toString());
+    localStorage.setItem("minesweeperMode", mode.toString());
   }, [
     cells,
     bombCounter,
@@ -86,6 +89,7 @@ const App: React.FC = () => {
     statistics,
     live,
     level,
+    mode,
     playerName,
   ]);
 
@@ -257,7 +261,6 @@ const App: React.FC = () => {
 
   const handleLevelChange = (level?: number) => (e?: any): void => {
     let newLevel;
-
     if (level !== undefined) newLevel = level;
     else newLevel = +e.currentTarget.value;
 
@@ -268,6 +271,20 @@ const App: React.FC = () => {
     setTime(0);
     setCells(generateCells(newLevel));
     setBombCounter(levels[newLevel].NUM_OF_BOMBS);
+  };
+
+  const handleModeChange = (mode?: number) => (e?: any): void => {
+    let newMode;
+    if (mode !== undefined) newMode = mode;
+    else newMode = +e.currentTarget.value;
+
+    setMode(newMode);
+    setLive(false);
+    setHasLost(false);
+    setHasWon(false);
+    setTime(0);
+    setCells(generateCells(level));
+    setBombCounter(levels[level].NUM_OF_BOMBS);
   };
 
   const handleSoundVolumeChange = (range?: number) => (
@@ -302,6 +319,7 @@ const App: React.FC = () => {
           state={cell.state}
           value={cell.value}
           red={cell.red}
+          mode={mode}
         />
       ))
     );
@@ -328,13 +346,16 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <WonForm onClick={handleWonFormSubmit} visible={formVisible} />
       <Menu
+        onFormClick={handleWonFormSubmit}
+        formVisible={formVisible}
         level={level}
+        mode={mode}
         soundVolume={soundVolume}
         musicVolume={musicVolume}
         statistics={statistics}
         levelChange={handleLevelChange}
+        modeChange={handleModeChange}
         soundRangeChange={handleSoundVolumeChange}
         musicRangeChange={handleMusicVolumeChange}
       />

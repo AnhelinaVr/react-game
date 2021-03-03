@@ -3,30 +3,43 @@ import { Statistics } from "../../types";
 import { sortStat } from "../../utils";
 import "./Menu.scss";
 import Modal from "../Modal";
+import WonForm from "../WonForm";
 
 interface MenuProps {
   level: number;
+  mode: number;
+
   soundVolume: number;
   musicVolume: number;
   statistics: Statistics[];
   levelChange(level?: number): (...args: any[]) => void;
+  modeChange(mode?: number): (...args: any[]) => void;
+
   soundRangeChange(range?: number, music?: boolean): (...args: any[]) => void;
   musicRangeChange(range?: number, music?: boolean): (...args: any[]) => void;
+  onFormClick(name: string): (...args: any[]) => void;
+  formVisible: boolean;
 }
 
 const Menu: React.FC<MenuProps> = ({
   level,
+  mode,
+
   soundVolume,
   musicVolume,
+  formVisible,
   statistics,
   levelChange,
+  modeChange,
   soundRangeChange,
   musicRangeChange,
+  onFormClick,
 }) => {
   const [statVisible, setStatVisible] = useState<boolean>(false);
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const [musicVol, setMusicVol] = useState<number>(musicVolume);
   const [soundVol, setSoundVol] = useState<number>(soundVolume);
+  const [theme, setTheme] = useState<number>(0);
 
   useEffect(() => {
     musicRangeChange(musicVol)();
@@ -60,6 +73,15 @@ const Menu: React.FC<MenuProps> = ({
     };
   }, [musicVol, soundVol, statVisible]);
 
+  useEffect(() => {
+    const themes = ["red", "green"];
+    const body =
+      document.querySelector("body") ||
+      document.querySelector("html") ||
+      document.createElement("div");
+    body.style.backgroundColor = themes[theme];
+  }, [theme]);
+
   const getStat = (): React.ReactNode => {
     let sortedStat: Statistics[] = [];
     if (statistics.length !== 0)
@@ -83,6 +105,10 @@ const Menu: React.FC<MenuProps> = ({
     setStatVisible(false);
   };
 
+  const handleThemeChange = () => (e: any) => {
+    setTheme(+e.currentTarget.value);
+  };
+
   return (
     <div className="Menu">
       <button className="hideMenu" onClick={showMenu}>
@@ -90,6 +116,15 @@ const Menu: React.FC<MenuProps> = ({
       </button>
       <div className={`wrapper ${menuVisible ? "" : "hidden"}`}>
         <select name="level" value={level} onChange={levelChange()}>
+          <option value="0">Easy</option>
+          <option value="1">Medium</option>
+          <option value="2">Hard</option>
+        </select>
+        <select name="mode" value={mode} onChange={modeChange()}>
+          <option value="0">Classical</option>
+          <option value="1">Challenge</option>
+        </select>
+        <select name="theme" value={theme} onChange={handleThemeChange()}>
           <option value="0">Easy</option>
           <option value="1">Medium</option>
           <option value="2">Hard</option>
@@ -125,9 +160,15 @@ const Menu: React.FC<MenuProps> = ({
         <button onClick={() => setStatVisible(true)}>Show statistics</button>
       </div>
       <Modal
-        title={"Statistics"}
-        text={getStat()}
-        isOpened={statVisible}
+        title={formVisible ? "Enter your name" : "Statistics"}
+        text={
+          formVisible ? (
+            <WonForm visible={formVisible} onClick={onFormClick} />
+          ) : (
+            getStat()
+          )
+        }
+        isOpened={formVisible || statVisible}
         onModalClose={handleModalClose}
       />
     </div>

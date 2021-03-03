@@ -19,25 +19,49 @@
     &.value-1 {
         color: blue;
     }
+    &.value-1.challenge.visible {
+        background-color: blue;
+    }
     &.value-2 {
         color: green;
+    }
+    &.value-2.challenge.visible {
+        background-color: green;
     }
     &.value-3 {
         color: red;
     }
+    &.value-3.challenge.visible {
+        background-color: red;
+    }
     &.value-4 {
         color: purple;
+    }
+    &.value-4.challenge.visible {
+        background-color: purple;
     }
     &.value-5 {
         color: maroon;
     }
+    &.value-5.challenge.visible {
+        background-color: maroon;
+    }
     &.value-6 {
         color: turquoise;
+    }
+    &.value-6.challenge.visible {
+        background-color: turquoise;
     }
     &.value-7 {
         color: black;
     }
+    &.value-7.challenge.visible {
+        background-color: black;
+    }
     &.value-8 {
         color: gray;
+    }
+    &.value-8.challenge.visible {
+        background-color: gray;
     }
 }
