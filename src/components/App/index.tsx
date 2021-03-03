@@ -1,4 +1,4 @@
-import React, { KeyboardEvent, useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import useSound from "use-sound";
 import "./App.scss";
 import NumberDisplay from "../NumberDisplay";
@@ -25,7 +25,9 @@ const App: React.FC = () => {
   const [formVisible, setFormVisible] = useState<boolean>(false);
   const [playerName, setPlayerName] = useState<string>("");
   const [bgAudioPlaying, dispatch] = useReducer(reducer, false);
-  const [play] = useSound(bgAudioURL, { volume: musicVolume / 100 });
+  const [play, { isPlaying }] = useSound(bgAudioURL, {
+    volume: musicVolume / 100,
+  });
 
   function reducer(state: any, action: any) {
     if (action.play) {
@@ -37,13 +39,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (musicVolume > 0)
-      if (bgAudioPlaying) {
+      if (isPlaying) {
         dispatch({ play: false });
       } else {
         play();
         dispatch({ play: true });
       }
-  }, [musicVolume, bgAudioPlaying]);
+  }, [musicVolume, isPlaying]);
 
   useEffect(() => {
     const parsedCells = localStorage.getItem("minesweeperCells") || "";

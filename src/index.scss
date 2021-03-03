@@ -13,3 +13,21 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+.fullscreen {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+    &:hover {
+        img {
+            width: 25px;
+        }
+    }
+    img {
+        width: 20px;
+    }
+}

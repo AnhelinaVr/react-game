@@ -3,6 +3,10 @@
     @include borders(#fff, #999);
     background-color: #c2c2c2;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .Header {
@@ -22,6 +26,7 @@
         justify-content: center;
         align-items: center;
         cursor: pointer;
+        margin: 0 10px;
     }
 }
 
@@ -30,17 +35,19 @@
     margin-top: 16px;
     display: grid;
     &.level-0 {
+        max-width: calc(8px + 30px * 9);
+        width: 90vw;
         grid-template-rows: repeat(9, 1fr);
         grid-template-columns: repeat(9, 1fr);
     }
     &.level-1 {
-        max-width: calc(30px * 16);
+        max-width: calc(8px + 30px * 16);
         width: 90vw;
         grid-template-rows: repeat(16, 1fr);
         grid-template-columns: repeat(16, 1fr);
     }
     &.level-2 {
-        max-width: calc(30px * 30);
+        max-width: calc(8px + 30px * 30);
         width: 90vw;
         grid-template-rows: repeat(16, 1fr);
         grid-template-columns: repeat(30, 1fr);

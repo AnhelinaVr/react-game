@@ -4,9 +4,9 @@ import { sortStat } from "../../utils";
 import "./Menu.scss";
 import Modal from "../Modal";
 import WonForm from "../WonForm";
-import theme1 from "../../assets/0.jpg";
-import theme2 from "../../assets/1.jpg";
-import theme3 from "../../assets/2.jpg";
+import theme1 from "../../assets/0.svg";
+import theme2 from "../../assets/1.svg";
+import theme3 from "../../assets/2.svg";
 
 interface MenuProps {
   level: number;
@@ -223,9 +223,9 @@ const Menu: React.FC<MenuProps> = ({
           <div className="select__container">
             <h4 className="select__title">Theme</h4>
             <select name="theme" value={theme} onChange={handleThemeChange()}>
-              <option value="0">Red</option>
-              <option value="1">Green</option>
-              <option value="2">Hard</option>
+              <option value="0">1</option>
+              <option value="1">2</option>
+              <option value="2">3</option>
             </select>
           </div>
         </div>
