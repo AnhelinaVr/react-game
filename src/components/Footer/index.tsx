@@ -7,8 +7,9 @@ const Footer: React.FC = () => {
   return (
     <footer className="Footer">
       <a className="link" href="https://github.com/AnhelinaVr">
-        Anhelina Vrubleuskaya
+        Anhelina Vrubleuskaya 2021
       </a>
+
       <a href="https://rs.school/js/">
         <img src={rssLogo} alt="RSSchool" />
       </a>
