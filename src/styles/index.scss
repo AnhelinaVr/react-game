@@ -6,6 +6,7 @@
 @mixin buttons {
     display: flex;
     justify-content: center;
+    align-items: center;
     &:active {
         border-color: #7b7b7b #fff #fff #7b7b7b;
     }

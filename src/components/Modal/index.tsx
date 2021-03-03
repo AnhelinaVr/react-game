@@ -18,9 +18,9 @@ const Modal: React.FC<ModalProps> = ({
     <div className={`Modal ${isOpened ? "open" : "close"}`}>
       <div className={`Modal__body `}>
         <div className="Modal__close" onClick={onModalClose}>
-          x
+          &times;
         </div>
-        <h2>{title}</h2>
+        <h2 className="Modal__title">{title}</h2>
         <hr />
         {text}
       </div>

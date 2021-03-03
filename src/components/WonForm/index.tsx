@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./WonForm.scss";
 
 interface WonFormProps {
   visible: boolean;
@@ -16,8 +17,18 @@ const WonForm: React.FC<WonFormProps> = ({ visible, onClick }) => {
     return (
       <div className="WonForm">
         <form action="" className="Form">
-          <input type="text" required onChange={handleNameChange} />
-          <button type="submit" onClick={onClick(name)}>
+          <input
+            type="text"
+            required
+            onChange={handleNameChange}
+            placeholder="Name"
+            className="WonForm__input"
+          />
+          <button
+            className="WonForm__submit"
+            type="submit"
+            onClick={onClick(name)}
+          >
             Submit
           </button>
         </form>

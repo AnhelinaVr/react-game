@@ -2,7 +2,8 @@
 .Button {
     @include borders;
     @include buttons;
-    width: 30px;
+    width: 100%;
+    max-width: 30px;
     height: 30px;
     font-weight: bold;
     &.visible {
@@ -63,5 +64,16 @@
     }
     &.value-8.challenge.visible {
         background-color: gray;
+    }
+}
+
+@media screen and (max-width: 620px) {
+    .Button {
+        font-size: 8px;
+        border-width: 2px;
+        span {
+            font-size: 6px;
+            margin: 0;
+        }
     }
 }

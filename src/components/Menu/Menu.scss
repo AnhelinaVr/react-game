@@ -1,10 +1,31 @@
-@import "~@feizheng/react-modal-manager/dist/style.scss";
+@import "../../styles/index.scss";
+.hideMenu {
+    @include borders;
+    @include buttons;
+    width: 100%;
+    font-weight: bold;
+    margin-bottom: 5px;
+    padding: 5px;
+    outline: 0;
+}
+
 .wrapper {
     display: flex;
     flex-wrap: wrap;
     max-width: fit-content;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
     &.hidden {
         display: none;
+    }
+    * {
+        margin: 2px 5px;
+        text-align: center;
+    }
+    button {
+        @include borders;
+        @include buttons;
     }
 }
 
@@ -14,5 +35,62 @@
         display: block;
         width: 70px;
         background-color: rgb(249, 255, 168);
+    }
+    &__list {
+        list-style: none;
+        padding-left: 10px;
+        li {
+            margin: 10px 5px;
+            &::before {
+                content: "⭐ ";
+            }
+        }
+    }
+}
+
+.select {
+    &__group {
+        display: flex;
+    }
+    &__container {
+        text-align: center;
+        margin: 0 5px;
+    }
+    &__title {
+        margin: 0;
+    }
+}
+
+.range__container {
+    display: flex;
+    flex-direction: column;
+    .sound {
+        display: flex;
+    }
+    .music {
+        display: flex;
+    }
+}
+
+.info {
+    display: flex;
+    justify-content: space-around;
+    .hotkeys,
+    .modes {
+        flex-basis: 50%;
+    }
+    &__title {
+        text-align: center;
+        text-transform: uppercase;
+        text-decoration: underline;
+    }
+    &__description {
+        ul {
+            list-style: none;
+            padding: 5px;
+            li::before {
+                content: "🔹";
+            }
+        }
     }
 }

@@ -34,11 +34,21 @@
         grid-template-columns: repeat(9, 1fr);
     }
     &.level-1 {
+        max-width: calc(30px * 16);
+        width: 90vw;
         grid-template-rows: repeat(16, 1fr);
         grid-template-columns: repeat(16, 1fr);
     }
     &.level-2 {
+        max-width: calc(30px * 30);
+        width: 90vw;
         grid-template-rows: repeat(16, 1fr);
         grid-template-columns: repeat(30, 1fr);
+    }
+}
+
+@media screen and (max-width: 780px) {
+    .App {
+        padding: 5px;
     }
 }

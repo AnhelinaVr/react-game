@@ -12,11 +12,48 @@
         height: 0;
         display: none;
     }
+    &__title {
+        margin: 0;
+        text-align: center;
+    }
     &__body {
+        position: relative;
         max-width: 500px;
+        max-height: 70%;
         margin: auto;
         margin-top: 5%;
         padding: 20px;
+        border-radius: 5px;
         background-color: #fff;
+        overflow-y: scroll;
+    }
+    &__close {
+        position: absolute;
+        right: 5px;
+        font-size: 25px;
+        cursor: pointer;
+        display: inline-block;
+        padding: 0 10px;
+        margin-left: 95%;
+        &:hover {
+            color: gray;
+            text-shadow: 1px 1px 5px #808080;
+        }
+    }
+}
+
+// scrollbar
+.Modal__body {
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #7b7b7b;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 }
