@@ -242,6 +242,7 @@ const App: React.FC = () => {
     if (currentCell.state === CellState.Visible) {
       return;
     } else if (currentCell.state === CellState.Open) {
+      audioPlay("flag", soundVolume);
       currentCells[rowParam][colParam].state = CellState.Flagged;
       setCells(currentCells);
       setBombCounter(bombCounter - 1);
